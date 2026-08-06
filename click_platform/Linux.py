@@ -9,7 +9,6 @@ class Click:
         }
         self.name = "autoclicker"
 
-        # 0x01 = PCI, 0x02 = Legacy IS A PNP, 0x03 = USB, 0x05 = BLUETOOTH, 0x06 = VIRTUAL
         self.bus_type = 0x03
 
         self.indev = UInput(self.capabilities, name=self.name, bustype=self.bus_type)

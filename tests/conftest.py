@@ -11,13 +11,11 @@ _MAIN_PATH = Path(__file__).resolve().parent.parent / "__main__.py"
 
 
 def load_main():
-    """Load __main__.py definitions only, skipping module-level execution."""
     source = _MAIN_PATH.read_text()
     tree = ast.parse(source, filename=str(_MAIN_PATH))
 
     keep_nodes = []
     for node in tree.body:
-        # Skip `if __name__ != "__main__"` guard
         if isinstance(node, ast.If):
             try:
                 if (
@@ -29,17 +27,14 @@ def load_main():
                     continue
             except AttributeError:
                 pass
-        # Skip everything at/after the execution block (print + try/get_settings)
         if hasattr(node, "lineno") and node.lineno >= 257:
             break
         keep_nodes.append(node)
 
-    # Pre-mock the `me` module so `from me import generate_header` uses our mock
     mock_me = ModuleType("me")
     mock_me.generate_header = lambda: "HEADER"
     sys.modules["me"] = mock_me
 
-    # Build module with mocked dependencies
     mod = ModuleType("test_main")
     mod.__file__ = str(_MAIN_PATH)
 
@@ -65,13 +60,11 @@ def load_main():
 
     mod.__dict__["dataclass"] = dataclass
 
-    # Compile and exec
     mod_body = ast.Module(body=keep_nodes, type_ignores=[])
     ast.fix_missing_locations(mod_body)
     code = compile(mod_body, str(_MAIN_PATH), "exec")
     exec(code, mod.__dict__)
 
-    # Clean up
     if "me" in sys.modules:
         del sys.modules["me"]
 
