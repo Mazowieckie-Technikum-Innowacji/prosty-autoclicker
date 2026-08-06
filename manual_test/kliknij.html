@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kliknij!</title>
+    <style>
+        button {
+            border-radius: 15px;
+            background-color: blue;
+            padding: 20px 50px;
+            text-align: center;
+            font-size: 40px;
+            color: white;
+            cursor: pointer;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: background-color 0.05s linear ;
+            outline: 2px solid dimgray;
+            text-decoration: none;
+            text-transform: uppercase;
+
+            &:active {
+                background-color: green;
+                outline: 3px solid white;
+                padding: 25px 55px;
+                font-size: 50px;
+            }
+        }
+
+        body {
+            background: #101115;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        function clickBtn() {
+            const newStyle = document.createElement('style');
+            newStyle.innerHTML = 'body { background: green !important; }';
+            document.head.appendChild(newStyle);
+
+            const btn = document.querySelector('button');
+            btn.textContent = 'Poprawnie\n Kliknięto!';
+            btn.style.fontSize = '50px';
+        }
+    </script>
+    <button onclick="clickBtn()">Tutaj kursor po uruchmieniu</button>
+</body>
+</html>

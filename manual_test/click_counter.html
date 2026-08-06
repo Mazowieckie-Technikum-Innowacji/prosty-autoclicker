@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Licznik kliknięć</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #101115;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+        .counter {
+            font-size: 6rem;
+            font-weight: 700;
+            color: #7aa2f7;
+            margin-bottom: 20px;
+            font-variant-numeric: tabular-nums;
+        }
+        .buttons {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+        .btn {
+            border: none;
+            border-radius: 12px;
+            padding: 16px 32px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s, transform 0.1s;
+        }
+        .btn:active { transform: scale(0.95); }
+        .btn-plus { background: #2a6e3f; color: #fff; }
+        .btn-plus:hover { background: #35874f; }
+        .btn-minus { background: #6e2a2a; color: #fff; }
+        .btn-minus:hover { background: #873535; }
+        .btn-reset { background: #333; color: #aaa; }
+        .btn-reset:hover { background: #444; }
+        .stats {
+            display: flex;
+            gap: 40px;
+            font-size: 1.1rem;
+            color: #888;
+        }
+        .stats span { color: #bb9af7; font-weight: 600; }
+        .cps-bar {
+            margin-top: 30px;
+            width: 300px;
+            height: 8px;
+            background: #1a1b26;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .cps-fill {
+            height: 100%;
+            background: #7aa2f7;
+            width: 0%;
+            transition: width 0.1s;
+        }
+        .hint {
+            margin-top: 40px;
+            color: #555;
+            font-size: 0.8rem;
+        }
+        .back {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            color: #555;
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+        .back:hover { color: #7aa2f7; }
+    </style>
+</head>
+<body>
+    <a class="back" href="index.html">← Menu</a>
+
+    <div class="counter" id="counter">0</div>
+
+    <div class="buttons">
+        <button class="btn btn-minus" id="btnMinus">−</button>
+        <button class="btn btn-reset" id="btnReset">Reset</button>
+        <button class="btn btn-plus" id="btnPlus">+</button>
+    </div>
+
+    <div class="stats">
+        <div>CPS: <span id="cps">0.00</span></div>
+        <div>Czas: <span id="time">0.0s</span></div>
+    </div>
+
+    <div class="cps-bar"><div class="cps-fill" id="cpsFill"></div></div>
+
+    <p class="hint">Skróty: Spacja = +, Backspace = −, R = reset</p>
+
+    <script>
+        let count = 0;
+        let clicks = [];
+        let timer = null;
+        const counterEl = document.getElementById('counter');
+        const cpsEl = document.getElementById('cps');
+        const timeEl = document.getElementById('time');
+        const cpsFill = document.getElementById('cpsFill');
+
+        function update() {
+            counterEl.textContent = count;
+            const now = performance.now();
+            clicks = clicks.filter(t => now - t < 1000);
+            const cps = clicks.length;
+            cpsEl.textContent = cps.toFixed(2);
+            cpsFill.style.width = Math.min(100, cps * 5) + '%';
+            if (clicks.length > 0) {
+                const elapsed = (now - clicks[0]) / 1000;
+                timeEl.textContent = elapsed.toFixed(1) + 's';
+            }
+        }
+
+        function addClick() {
+            count++;
+            clicks.push(performance.now());
+            update();
+        }
+
+        function removeClick() {
+            count = Math.max(0, count - 1);
+            update();
+        }
+
+        function reset() {
+            count = 0;
+            clicks = [];
+            update();
+        }
+
+        document.getElementById('btnPlus').addEventListener('click', addClick);
+        document.getElementById('btnMinus').addEventListener('click', removeClick);
+        document.getElementById('btnReset').addEventListener('click', reset);
+
+        document.addEventListener('keydown', e => {
+            if (e.code === 'Space') { e.preventDefault(); addClick(); }
+            if (e.code === 'Backspace') { e.preventDefault(); removeClick(); }
+            if (e.code === 'KeyR') { reset(); }
+        });
+
+        setInterval(update, 50);
+    </script>
+</body>
+</html>

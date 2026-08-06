@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tester CPS</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #101115;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px 20px;
+            user-select: none;
+        }
+        h1 { color: #7aa2f7; margin-bottom: 20px; }
+        .intervals {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+        .interval-btn {
+            border: 2px solid #2a2b3a;
+            background: #1a1b26;
+            color: #e0e0e0;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+        .interval-btn:hover { border-color: #7aa2f7; }
+        .interval-btn.active { border-color: #7aa2f7; background: #1e2030; color: #7aa2f7; }
+        .target {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: #2a2b3a;
+            border: 4px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            color: #888;
+            cursor: pointer;
+            margin-bottom: 24px;
+            transition: background 0.05s;
+        }
+        .target:active { background: #3a4a3a; border-color: #7aa2f7; }
+        .target.running { border-color: #7aa2f7; }
+        .target.done { border-color: #9ece6a; background: #1a2a1a; }
+        .progress {
+            width: 300px;
+            height: 6px;
+            background: #1a1b26;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #7aa2f7;
+            width: 0%;
+            transition: width 0.05s linear;
+        }
+        .live {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #bb9af7;
+            margin-bottom: 8px;
+        }
+        .info { color: #888; margin-bottom: 6px; }
+        .results {
+            margin-top: 24px;
+            padding: 20px;
+            background: #1a1b26;
+            border-radius: 12px;
+            border: 1px solid #2a2b3a;
+            min-width: 300px;
+            display: none;
+        }
+        .results.show { display: block; }
+        .results h2 { color: #9ece6a; margin-bottom: 12px; font-size: 1.1rem; }
+        .results .row { display: flex; justify-content: space-between; margin-bottom: 6px; color: #aaa; }
+        .results .row span { color: #e0e0e0; font-weight: 600; }
+        .back {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            color: #555;
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+        .back:hover { color: #7aa2f7; }
+    </style>
+</head>
+<body>
+    <a class="back" href="index.html">← Menu</a>
+    <h1>Tester CPS</h1>
+
+    <div class="intervals" id="intervals">
+        <button class="interval-btn active" data-sec="2">2s</button>
+        <button class="interval-btn" data-sec="5">5s</button>
+        <button class="interval-btn" data-sec="10">10s</button>
+        <button class="interval-btn" data-sec="15">15s</button>
+        <button class="interval-btn" data-sec="20">20s</button>
+        <button class="interval-btn" data-sec="30">30s</button>
+        <button class="interval-btn" data-sec="60">60s</button>
+        <button class="interval-btn" data-sec="0">Dynamiczny</button>
+    </div>
+
+    <div class="target" id="target">KLIKNIJ ABY ZACZĄĆ</div>
+    <div class="progress"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="live" id="live">0.00</div>
+    <div class="info" id="info">CPS</div>
+
+    <div class="results" id="results">
+        <h2>Wyniki</h2>
+        <div class="row"><div>Czas</div><span id="rTime"></span></div>
+        <div class="row"><div>Kliknięcia</div><span id="rClicks"></span></div>
+        <div class="row"><div>Średni CPS</div><span id="rAvg"></span></div>
+        <div class="row"><div>Max CPS</div><span id="rMax"></span></div>
+    </div>
+
+    <script>
+        let interval = 2;
+        let running = false;
+        let startTime = 0;
+        let clickTimes = [];
+        let dynamicSilence = 0;
+        const target = document.getElementById('target');
+        const progressFill = document.getElementById('progressFill');
+        const liveEl = document.getElementById('live');
+        const infoEl = document.getElementById('info');
+        const resultsEl = document.getElementById('results');
+
+        document.querySelectorAll('.interval-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.interval-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                interval = parseInt(btn.dataset.sec);
+            });
+        });
+
+        target.addEventListener('click', e => {
+            e.preventDefault();
+            if (!running) startTest();
+            else registerClick();
+        });
+
+        document.addEventListener('keydown', e => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                if (!running) startTest();
+                else registerClick();
+            }
+        });
+
+        function startTest() {
+            running = true;
+            startTime = performance.now();
+            clickTimes = [];
+            dynamicSilence = 0;
+            target.textContent = 'KLIKKAJ!';
+            target.classList.add('running');
+            target.classList.remove('done');
+            resultsEl.classList.remove('show');
+            tick();
+        }
+
+        function registerClick() {
+            clickTimes.push(performance.now());
+            dynamicSilence = 0;
+        }
+
+        function tick() {
+            if (!running) return;
+            const now = performance.now();
+            const elapsed = (now - startTime) / 1000;
+            const dur = interval === 0 ? 10 : interval;
+            const pct = Math.min(100, (elapsed / dur) * 100);
+            progressFill.style.width = pct + '%';
+
+            const recent = clickTimes.filter(t => now - t < 1000);
+            liveEl.textContent = recent.length.toFixed(2);
+
+            if (interval === 0) {
+                const lastClick = clickTimes.length > 0 ? clickTimes[clickTimes.length - 1] : startTime;
+                dynamicSilence = (now - lastClick) / 1000;
+                if (dynamicSilence >= 3 && elapsed >= 2) {
+                    finishTest(elapsed);
+                    return;
+                }
+                infoEl.textContent = `Dynamiczny — cisza: ${dynamicSilence.toFixed(1)}s (auto-stop przy 3s)`;
+            } else {
+                infoEl.textContent = `CPS — pozostało: ${Math.max(0, dur - elapsed).toFixed(1)}s`;
+            }
+
+            if (interval > 0 && elapsed >= interval) {
+                finishTest(elapsed);
+                return;
+            }
+
+            requestAnimationFrame(tick);
+        }
+
+        function finishTest(elapsed) {
+            running = false;
+            target.textContent = 'GOTOWE';
+            target.classList.remove('running');
+            target.classList.add('done');
+
+            const total = clickTimes.length;
+            const avg = total / elapsed;
+            let maxCps = 0;
+            for (let i = 0; i < clickTimes.length; i++) {
+                const windowEnd = clickTimes.filter(t => clickTimes[i] - t < 1000);
+                if (windowEnd.length > maxCps) maxCps = windowEnd.length;
+            }
+
+            document.getElementById('rTime').textContent = elapsed.toFixed(2) + 's';
+            document.getElementById('rClicks').textContent = total;
+            document.getElementById('rAvg').textContent = avg.toFixed(2);
+            document.getElementById('rMax').textContent = maxCps;
+            resultsEl.classList.add('show');
+            liveEl.textContent = avg.toFixed(2);
+        }
+    </script>
+</body>
+</html>

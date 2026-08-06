@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wykres kliknięć</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #101115;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px 20px;
+            user-select: none;
+        }
+        h1 { color: #7aa2f7; margin-bottom: 16px; }
+        .controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .btn {
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.15s;
+        }
+        .btn-start { background: #2a6e3f; color: #fff; }
+        .btn-start:hover { background: #35874f; }
+        .btn-stop { background: #6e2a2a; color: #fff; }
+        .btn-stop:hover { background: #873535; }
+        .btn-reset { background: #333; color: #aaa; }
+        .btn-reset:hover { background: #444; }
+        .btn-export { background: #333; color: #7aa2f7; border: 1px solid #7aa2f7; }
+        .btn-export:hover { background: #1a1b26; }
+        canvas {
+            border: 1px solid #2a2b3a;
+            border-radius: 8px;
+            background: #1a1b26;
+            margin-bottom: 20px;
+        }
+        .stats {
+            display: flex;
+            gap: 32px;
+            font-size: 1rem;
+            color: #888;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .stats div span { color: #bb9af7; font-weight: 600; }
+        .back {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            color: #555;
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+        .back:hover { color: #7aa2f7; }
+    </style>
+</head>
+<body>
+    <a class="back" href="index.html">← Menu</a>
+    <h1>Wykres kliknięć</h1>
+
+    <div class="controls">
+        <button class="btn btn-start" id="btnStart">Start</button>
+        <button class="btn btn-stop" id="btnStop" disabled>Stop</button>
+        <button class="btn btn-reset" id="btnReset">Reset</button>
+        <button class="btn btn-export" id="btnExport">Eksport CSV</button>
+    </div>
+
+    <canvas id="graph" width="700" height="300"></canvas>
+
+    <div class="stats">
+        <div>CPS bieżący: <span id="sCps">0</span></div>
+        <div>Średni CPS: <span id="sAvg">0</span></div>
+        <div>Min CPS: <span id="sMin">-</span></div>
+        <div>Max CPS: <span id="sMax">0</span></div>
+        <div>Kliknięcia łącznie: <span id="sTotal">0</span></div>
+        <div>Czas: <span id="sTime">0.0s</span></div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('graph');
+        const ctx = canvas.getContext('2d');
+        let clickTimes = [];
+        let recording = false;
+        let startTime = 0;
+        let rafId = null;
+        const W = canvas.width;
+        const H = canvas.height;
+        const PAD = { top: 20, right: 20, bottom: 30, left: 50 };
+        const gW = W - PAD.left - PAD.right;
+        const gH = H - PAD.top - PAD.bottom;
+
+        function drawGrid() {
+            ctx.clearRect(0, 0, W, H);
+            ctx.strokeStyle = '#2a2b3a';
+            ctx.lineWidth = 1;
+            for (let y = 0; y <= 20; y += 5) {
+                const py = PAD.top + gH - (y / 20) * gH;
+                ctx.beginPath();
+                ctx.moveTo(PAD.left, py);
+                ctx.lineTo(W - PAD.right, py);
+                ctx.stroke();
+                ctx.fillStyle = '#555';
+                ctx.font = '11px monospace';
+                ctx.textAlign = 'right';
+                ctx.fillText(y, PAD.left - 8, py + 4);
+            }
+            ctx.fillStyle = '#555';
+            ctx.font = '11px monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText('CPS', 20, PAD.top + gH / 2);
+        }
+
+        function getCpsHistory() {
+            if (clickTimes.length < 2) return [];
+            const result = [];
+            const start = clickTimes[0];
+            const end = clickTimes[clickTimes.length - 1];
+            for (let t = start; t <= end; t += 500) {
+                const count = clickTimes.filter(ct => ct >= t - 1000 && ct < t).length;
+                result.push({ t: t - start, cps: count });
+            }
+            return result;
+        }
+
+        function drawGraph() {
+            drawGrid();
+            const history = getCpsHistory();
+            if (history.length < 2) return;
+
+            const maxT = history[history.length - 1].t || 1;
+
+            ctx.beginPath();
+            ctx.strokeStyle = '#7aa2f7';
+            ctx.lineWidth = 2;
+            ctx.lineJoin = 'round';
+            history.forEach((pt, i) => {
+                const x = PAD.left + (pt.t / maxT) * gW;
+                const y = PAD.top + gH - (Math.min(pt.cps, 20) / 20) * gH;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.fillStyle = 'rgba(122, 162, 247, 0.15)';
+            ctx.moveTo(PAD.left, PAD.top + gH);
+            history.forEach((pt, i) => {
+                const x = PAD.left + (pt.t / maxT) * gW;
+                const y = PAD.top + gH - (Math.min(pt.cps, 20) / 20) * gH;
+                ctx.lineTo(x, y);
+            });
+            ctx.lineTo(PAD.left + gW, PAD.top + gH);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function updateStats() {
+            const now = performance.now();
+            const recent = clickTimes.filter(t => now - t < 1000);
+            const elapsed = recording ? (now - startTime) / 1000 : 0;
+            const total = clickTimes.length;
+            const avg = elapsed > 0 ? total / elapsed : 0;
+
+            let minCps = Infinity, maxCps = 0;
+            const history = getCpsHistory();
+            history.forEach(h => {
+                if (h.cps < minCps) minCps = h.cps;
+                if (h.cps > maxCps) maxCps = h.cps;
+            });
+            if (minCps === Infinity) minCps = 0;
+
+            document.getElementById('sCps').textContent = recent.length;
+            document.getElementById('sAvg').textContent = avg.toFixed(2);
+            document.getElementById('sMin').textContent = minCps;
+            document.getElementById('sMax').textContent = maxCps;
+            document.getElementById('sTotal').textContent = total;
+            document.getElementById('sTime').textContent = elapsed.toFixed(1) + 's';
+        }
+
+        function tick() {
+            drawGraph();
+            updateStats();
+            rafId = requestAnimationFrame(tick);
+        }
+
+        function start() {
+            if (recording) return;
+            recording = true;
+            startTime = performance.now();
+            clickTimes = [];
+            document.getElementById('btnStart').disabled = true;
+            document.getElementById('btnStop').disabled = false;
+            tick();
+        }
+
+        function stop() {
+            recording = false;
+            document.getElementById('btnStart').disabled = false;
+            document.getElementById('btnStop').disabled = true;
+            if (rafId) cancelAnimationFrame(rafId);
+            drawGraph();
+            updateStats();
+        }
+
+        function reset() {
+            stop();
+            clickTimes = [];
+            drawGrid();
+            updateStats();
+        }
+
+        function exportCSV() {
+            if (clickTimes.length === 0) return;
+            const start = clickTimes[0];
+            let csv = 'time_ms,cps\n';
+            for (let t = 0; t <= clickTimes[clickTimes.length - 1] - start; t += 500) {
+                const count = clickTimes.filter(ct => (ct - start) >= t - 1000 && (ct - start) < t).length;
+                csv += t + ',' + count + '\n';
+            }
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'cps_data.csv';
+            a.click();
+        }
+
+        document.getElementById('btnStart').addEventListener('click', start);
+        document.getElementById('btnStop').addEventListener('click', stop);
+        document.getElementById('btnReset').addEventListener('click', reset);
+        document.getElementById('btnExport').addEventListener('click', exportCSV);
+
+        document.addEventListener('click', e => {
+            if (recording && e.target === canvas) {
+                clickTimes.push(performance.now());
+            }
+        });
+        document.addEventListener('keydown', e => {
+            if (recording && e.code === 'Space') {
+                e.preventDefault();
+                clickTimes.push(performance.now());
+            }
+        });
+
+        drawGrid();
+        updateStats();
+    </script>
+</body>
+</html>

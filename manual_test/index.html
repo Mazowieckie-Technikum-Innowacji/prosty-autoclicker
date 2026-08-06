@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testy manualne — Simple Autoclicker</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #101115;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #7aa2f7;
+        }
+        .subtitle {
+            color: #888;
+            margin-bottom: 40px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            max-width: 960px;
+            width: 100%;
+        }
+        .card {
+            background: #1a1b26;
+            border: 1px solid #2a2b3a;
+            border-radius: 12px;
+            padding: 24px;
+            text-decoration: none;
+            color: inherit;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+        .card:hover {
+            border-color: #7aa2f7;
+            transform: translateY(-2px);
+        }
+        .card h2 {
+            color: #7aa2f7;
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+        }
+        .card p {
+            color: #999;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        .back {
+            margin-top: 40px;
+            color: #666;
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+        .back:hover { color: #7aa2f7; }
+    </style>
+</head>
+<body>
+    <h1>Testy manualne</h1>
+    <p class="subtitle">Simple Autoclicker — sprawdzanie działania</p>
+
+    <div class="grid">
+        <a class="card" href="kliknij.html">
+            <h2>Kliknij!</h2>
+            <p>Podstawowy test kliknięcia. Przycisk zmienia kolor na zielony po kliknięciu. Służy do weryfikacji podstawowego działania autoclickera.</p>
+        </a>
+
+        <a class="card" href="click_counter.html">
+            <h2>Licznik kliknięć</h2>
+            <p>Przyciski +/− z licznikiem i pomiarem CPS. Skróty klawiszowe: Spacja = +, Backspace = −, R = reset.</p>
+        </a>
+
+        <a class="card" href="cps_tester.html">
+            <h2>Tester CPS</h2>
+            <p>Pomiary CPS w przedziałach: 2s, 5s, 10s, 15s, 20s, 30s, 60s i dynamiczny. Wykres na żywo i podsumowanie po teście.</p>
+        </a>
+
+        <a class="card" href="click_graph.html">
+            <h2>Wykres kliknięć</h2>
+            <p>Wizualizacja CPS w czasie rzeczywistym na wykresie. Statystyki: CPS bieżący, średnia, min, max, łącznie kliknięć.</p>
+        </a>
+    </div>
+
+    <a class="back" href="https://github.com/Mazowieckie-Technikum-Innowacji/prosty-autoclicker">← Powrót do repozytorium</a>
+</body>
+</html>

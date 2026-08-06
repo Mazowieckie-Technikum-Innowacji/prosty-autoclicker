@@ -3,16 +3,53 @@ name = "simple-autoclicker"
 version = "0.1.0"
 description = "A simple autoclicker"
 license = "MIT"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 readme = "README.md"
 authors = [
     { name = "Bartosz Zakrzewski", email = "bartoszzakrzewski@mti.edu.pl" },
 ]
-keywords = ["autoclicker", "mouse", "automation", "learing", "python"]
+keywords = ["autoclicker", "mouse", "automation", "learning", "python"]
+
+[project.optional-dependencies]
+test = ["pytest>=7.0", "numpy"]
+dev = ["ruff>=0.4.0", "pre-commit>=3.0"]
 
 [project.urls]
-homepage = ""
-repository = ""
-documentation = ""
+homepage = "https://github.com/Mazowieckie-Technikum-Innowacji/prosty-autoclicker"
+repository = "https://github.com/Mazowieckie-Technikum-Innowacji/prosty-autoclicker"
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "B",    # flake8-bugbear
+    "UP",   # pyupgrade
+    "SIM",  # flake8-simplify
+    "RUF",  # ruff-specific rules
+]
+ignore = [
+    "E501",   # line too long (handled by formatter)
+    "B008",   # do not perform function calls in argument defaults
+    "B905",   # zip() without strict= (not needed when lengths are guaranteed equal)
+    "SIM108", # use ternary operator (readability preference)
+    "UP007",  # use X | Y for union types (py38 compat)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["B", "SIM"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
 
 
