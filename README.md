@@ -45,11 +45,11 @@ uv venv venv
 ## Uruchamianie
 
 ```bash
-python run .
+python .
 ```
 
 ```bash
-python run __main__.py
+python ._main__.py
 ```
 
 ```bash
@@ -61,13 +61,13 @@ uv run .
 Używając `pip i python`:
 ```bash
 source venv/bin/activate
-python run .
+python .
 ```
 
 Bezpośrednio:
 
 ```bash
-./venv/bin/python run .
+./venv/bin/python .
 ```
 
 Używając `uv`:
