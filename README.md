@@ -23,7 +23,7 @@ Pełna licencja w pliku `LICENSE.md`. (Licencja MIT)
 
 ## Wymagania
 
-- Python >= 3.8
+- Python >= 3.10
 - Linux: `evdev`
 - Windows: `pynput`
 - `numpy` (dla trybu losowego)
