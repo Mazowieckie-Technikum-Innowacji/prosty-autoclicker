@@ -1,0 +1,18 @@
+[project]
+name = "simple-autoclicker"
+version = "0.1.0"
+description = "A simple autoclicker"
+license = "MIT"
+requires-python = ">=3.8"
+readme = "README.md"
+authors = [
+    { name = "Bartosz Zakrzewski", email = "bartoszzakrzewski@mti.edu.pl" },
+]
+keywords = ["autoclicker", "mouse", "automation", "learing", "python"]
+
+[project.urls]
+homepage = ""
+repository = ""
+documentation = ""
+
+
