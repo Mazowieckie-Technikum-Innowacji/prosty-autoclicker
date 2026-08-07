@@ -1,9 +1,6 @@
 [![Test Windows (pip)](https://github.com/Mazowieckie-Technikum-Innowacji/prosty-autoclicker/actions/workflows/test-windows.yml/badge.svg)](https://github.com/Mazowieckie-Technikum-Innowacji/prosty-autoclicker/actions/workflows/test-windows.yml)
-
 [![Test Linux (pip)](https://github.com/Mazowieckie-Technikum-Innowacji/prosty-autoclicker/actions/workflows/test-linux.yml/badge.svg)](https://github.com/Mazowieckie-Technikum-Innowacji/prosty-autoclicker/actions/workflows/test-linux.yml)
-
 [![Deploy Manual Tests to GitHub Pages](https://github.com/Mazowieckie-Technikum-Innowacji/prosty-autoclicker/actions/workflows/pages.yml/badge.svg)](https://github.com/Mazowieckie-Technikum-Innowacji/prosty-autoclicker/actions/workflows/pages.yml)
-
 [![Lint](https://github.com/Mazowieckie-Technikum-Innowacji/prosty-autoclicker/actions/workflows/lint.yml/badge.svg)](https://github.com/Mazowieckie-Technikum-Innowacji/prosty-autoclicker/actions/workflows/lint.yml)
 
 # Simple Autoclicker - README.md
