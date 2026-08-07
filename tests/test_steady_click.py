@@ -2,8 +2,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from tests.constants import CURRENT_OS
 from tests.conftest import load_main
+from tests.constants import CURRENT_OS
 
 
 class TestSteadyClick:

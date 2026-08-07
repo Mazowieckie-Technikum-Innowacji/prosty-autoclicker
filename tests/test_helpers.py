@@ -2,8 +2,8 @@ from unittest.mock import patch
 
 import pytest
 
-from tests.constants import CURRENT_OS, FALSE_INPUTS, SUPPORTED_OS_LIST, TRUE_INPUTS
 from tests.conftest import load_main
+from tests.constants import CURRENT_OS, FALSE_INPUTS, SUPPORTED_OS_LIST, TRUE_INPUTS
 
 
 def test_is_true():

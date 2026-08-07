@@ -2,8 +2,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from tests.constants import CURRENT_OS, ERROR_IMPOSSIBLE_FLUCTUATION
 from tests.conftest import load_main
+from tests.constants import CURRENT_OS
 
 
 class TestFluctuatingClick:
@@ -37,7 +37,7 @@ class TestFluctuatingClick:
         cfg = mod.Settings(duration=1.0, rate=1.0, randomize=True, randomize_min=5.0, os=CURRENT_OS)
 
         with patch.object(mod.time, "sleep"), patch.object(mod, "countdown"):
-            with pytest.raises(ValueError, match=ERROR_IMPOSSIBLE_FLUCTUATION):
+            with pytest.raises(ValueError, match="losowania"):
                 mod.fluctuating_click(cfg)
 
     def test_click_count_matches_duration_times_rate(self):

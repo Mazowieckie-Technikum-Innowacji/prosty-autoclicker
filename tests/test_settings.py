@@ -1,7 +1,7 @@
 from unittest.mock import patch
 
-from tests.constants import CURRENT_OS, TRUE_INPUT
 from tests.conftest import load_main
+from tests.constants import CURRENT_OS, TRUE_INPUT
 
 
 def test_returns_settings_object():
