@@ -1,0 +1,29 @@
+name: Test Linux Arch (uv)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test-arch:
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - name: Install system deps
+        run: pacman -Syu --noconfirm python python-pip git curl
+      - uses: actions/checkout@v4
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+      - name: Install dependencies
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          uv sync --extra test
+      - name: Run tests
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          uv run pytest tests/ -v

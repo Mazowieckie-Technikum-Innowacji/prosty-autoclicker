@@ -1,0 +1,29 @@
+name: Test Linux Arch (pip)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test-arch:
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - name: Install system deps
+        run: pacman -Syu --noconfirm python python-pip git
+      - uses: actions/checkout@v4
+      - name: Create venv
+        run: python -m venv .venv
+      - name: Install dependencies
+        run: |
+          source .venv/bin/activate
+          pip install -e ".[test]"
+      - name: Run tests
+        run: |
+          source .venv/bin/activate
+          pytest tests/ -v
