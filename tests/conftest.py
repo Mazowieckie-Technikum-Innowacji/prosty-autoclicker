@@ -7,6 +7,8 @@ from unittest.mock import MagicMock
 
 import numpy as np
 
+from tests.constants import CURRENT_OS
+
 _MAIN_PATH = Path(__file__).resolve().parent.parent / "__main__.py"
 
 
@@ -44,7 +46,7 @@ def load_main():
     mod.__dict__["sys"] = sys
 
     mock_platform = MagicMock()
-    mock_platform.system.return_value = "Linux"
+    mock_platform.system.return_value = CURRENT_OS
     mod.__dict__["platform"] = mock_platform
 
     mock_time = MagicMock()
@@ -64,6 +66,8 @@ def load_main():
     ast.fix_missing_locations(mod_body)
     code = compile(mod_body, str(_MAIN_PATH), "exec")
     exec(code, mod.__dict__)
+
+    mod.__dict__["platform"] = mock_platform
 
     if "me" in sys.modules:
         del sys.modules["me"]

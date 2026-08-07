@@ -5,16 +5,18 @@ from unittest.mock import MagicMock
 
 import pytest
 
+from tests.constants import BTN_LEFT, BTN_MIDDLE, BTN_RIGHT, EV_KEY
+
 
 class TestLinuxClick:
     @pytest.fixture
     def linux_click(self):
         mock_evdev = MagicMock()
         mock_ecodes = mock_evdev.ecodes
-        mock_ecodes.EV_KEY = "EV_KEY"
-        mock_ecodes.BTN_LEFT = "BTN_LEFT"
-        mock_ecodes.BTN_RIGHT = "BTN_RIGHT"
-        mock_ecodes.BTN_MIDDLE = "BTN_MIDDLE"
+        mock_ecodes.EV_KEY = EV_KEY
+        mock_ecodes.BTN_LEFT = BTN_LEFT
+        mock_ecodes.BTN_RIGHT = BTN_RIGHT
+        mock_ecodes.BTN_MIDDLE = BTN_MIDDLE
 
         sys.modules["evdev"] = mock_evdev
         try:
@@ -37,13 +39,13 @@ class TestLinuxClick:
     def test_press(self, linux_click):
         click, mock_evdev = linux_click
         click.press()
-        mock_evdev.UInput.return_value.write.assert_any_call("EV_KEY", "BTN_LEFT", 1)
+        mock_evdev.UInput.return_value.write.assert_any_call(EV_KEY, BTN_LEFT, 1)
         mock_evdev.UInput.return_value.syn.assert_called()
 
     def test_release(self, linux_click):
         click, mock_evdev = linux_click
         click.release()
-        mock_evdev.UInput.return_value.write.assert_any_call("EV_KEY", "BTN_LEFT", 0)
+        mock_evdev.UInput.return_value.write.assert_any_call(EV_KEY, BTN_LEFT, 0)
         mock_evdev.UInput.return_value.syn.assert_called()
 
     def test_call_does_press_and_release(self, linux_click):

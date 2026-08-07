@@ -2,6 +2,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from tests.constants import CURRENT_OS, ERROR_IMPOSSIBLE_FLUCTUATION
 from tests.conftest import load_main
 
 
@@ -10,7 +11,7 @@ class TestFluctuatingClick:
         mod = load_main()
         mock_click = MagicMock()
         mod.click = mock_click
-        cfg = mod.Settings(duration=1.0, rate=10.0, randomize=True, randomize_min=0.05, os="linux")
+        cfg = mod.Settings(duration=1.0, rate=10.0, randomize=True, randomize_min=0.05, os=CURRENT_OS)
 
         with patch.object(mod.time, "sleep"), patch.object(mod, "countdown"):
             mod.fluctuating_click(cfg)
@@ -22,7 +23,7 @@ class TestFluctuatingClick:
         mod = load_main()
         mock_click = MagicMock()
         mod.click = mock_click
-        cfg = mod.Settings(duration=1.0, rate=5.0, randomize=True, randomize_min=0.05, os="linux")
+        cfg = mod.Settings(duration=1.0, rate=5.0, randomize=True, randomize_min=0.05, os=CURRENT_OS)
 
         with patch.object(mod.time, "sleep"), patch.object(mod, "countdown"):
             mod.fluctuating_click(cfg)
@@ -33,17 +34,17 @@ class TestFluctuatingClick:
         mod = load_main()
         mock_click = MagicMock()
         mod.click = mock_click
-        cfg = mod.Settings(duration=1.0, rate=1.0, randomize=True, randomize_min=5.0, os="linux")
+        cfg = mod.Settings(duration=1.0, rate=1.0, randomize=True, randomize_min=5.0, os=CURRENT_OS)
 
         with patch.object(mod.time, "sleep"), patch.object(mod, "countdown"):
-            with pytest.raises(ValueError, match="Brak możliwości losowania"):
+            with pytest.raises(ValueError, match=ERROR_IMPOSSIBLE_FLUCTUATION):
                 mod.fluctuating_click(cfg)
 
     def test_click_count_matches_duration_times_rate(self):
         mod = load_main()
         mock_click = MagicMock()
         mod.click = mock_click
-        cfg = mod.Settings(duration=2.0, rate=10.0, randomize=True, randomize_min=0.05, os="linux")
+        cfg = mod.Settings(duration=2.0, rate=10.0, randomize=True, randomize_min=0.05, os=CURRENT_OS)
 
         with patch.object(mod.time, "sleep"), patch.object(mod, "countdown"):
             mod.fluctuating_click(cfg)
@@ -55,7 +56,7 @@ class TestFluctuatingClick:
         mod = load_main()
         mock_click = MagicMock()
         mod.click = mock_click
-        cfg = mod.Settings(duration=-1, rate=1.0, randomize=True, randomize_min=0.05, os="linux")
+        cfg = mod.Settings(duration=-1, rate=1.0, randomize=True, randomize_min=0.05, os=CURRENT_OS)
 
         call_count = 0
 
@@ -75,7 +76,7 @@ class TestFluctuatingClick:
         mod = load_main()
         mock_click = MagicMock()
         mod.click = mock_click
-        cfg = mod.Settings(duration=0.0001, rate=1.0, randomize=True, randomize_min=0.05, os="linux")
+        cfg = mod.Settings(duration=0.0001, rate=1.0, randomize=True, randomize_min=0.05, os=CURRENT_OS)
 
         with patch.object(mod.time, "sleep"), patch.object(mod, "countdown"):
             mod.fluctuating_click(cfg)

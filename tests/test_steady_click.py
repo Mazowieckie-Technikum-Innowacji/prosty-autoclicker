@@ -2,6 +2,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from tests.constants import CURRENT_OS
 from tests.conftest import load_main
 
 
@@ -10,7 +11,7 @@ class TestSteadyClick:
         mod = load_main()
         mock_click = MagicMock()
         mod.click = mock_click
-        cfg = mod.Settings(duration=2.0, rate=10.0, randomize=False, randomize_min=0.0, os="linux")
+        cfg = mod.Settings(duration=2.0, rate=10.0, randomize=False, randomize_min=0.0, os=CURRENT_OS)
 
         with patch.object(mod.time, "sleep"), patch.object(mod, "countdown"):
             mod.steady_click(cfg)
@@ -21,7 +22,7 @@ class TestSteadyClick:
         mod = load_main()
         mock_click = MagicMock()
         mod.click = mock_click
-        cfg = mod.Settings(duration=1.0, rate=5.0, randomize=False, randomize_min=0.0, os="linux")
+        cfg = mod.Settings(duration=1.0, rate=5.0, randomize=False, randomize_min=0.0, os=CURRENT_OS)
 
         call_order = []
         with (
@@ -36,7 +37,7 @@ class TestSteadyClick:
         mod = load_main()
         mock_click = MagicMock()
         mod.click = mock_click
-        cfg = mod.Settings(duration=1.0, rate=5.0, randomize=False, randomize_min=0.0, os="linux")
+        cfg = mod.Settings(duration=1.0, rate=5.0, randomize=False, randomize_min=0.0, os=CURRENT_OS)
 
         with (
             patch.object(mod, "click", mock_click),
@@ -52,7 +53,7 @@ class TestSteadyClick:
         mod = load_main()
         mock_click = MagicMock()
         mod.click = mock_click
-        cfg = mod.Settings(duration=-1, rate=1.0, randomize=False, randomize_min=0.0, os="linux")
+        cfg = mod.Settings(duration=-1, rate=1.0, randomize=False, randomize_min=0.0, os=CURRENT_OS)
 
         call_count = 0
 

@@ -2,20 +2,23 @@ from unittest.mock import patch
 
 import pytest
 
+from tests.constants import CURRENT_OS, FALSE_INPUTS, SUPPORTED_OS_LIST, TRUE_INPUTS
 from tests.conftest import load_main
 
 
 def test_is_true():
     mod = load_main()
-    assert mod.is_true("true") is True
-    assert mod.is_true("false") is False
+    for val in TRUE_INPUTS:
+        assert mod.is_true(val) is True
+    for val in FALSE_INPUTS:
+        assert mod.is_true(val) is False
     assert mod.is_true("YES") is True
 
 
 def test_is_supported_os():
     mod = load_main()
-    assert mod.is_supported_os("linux") is True
-    assert mod.is_supported_os("windows") is True
+    for os_name in SUPPORTED_OS_LIST:
+        assert mod.is_supported_os(os_name) is True
     assert mod.is_supported_os("macos") is False
 
 
@@ -35,7 +38,7 @@ def test_ask_number():
 
 def test_settings_dataclass():
     mod = load_main()
-    s = mod.Settings(duration=2.0, rate=10.0, randomize=True, randomize_min=0.1, os="linux")
+    s = mod.Settings(duration=2.0, rate=10.0, randomize=True, randomize_min=0.1, os=CURRENT_OS)
     assert s.duration == 2.0
     assert s.rate == 10.0
     assert s.randomize is True
